@@ -5,23 +5,46 @@ var width = 3
 var height = 3
 var src_file
 
-var shapes = []
-var shape_size = 64
+var shape_ref = []
+const shape_size = 64
+var name
 
-var shape = preload("res://scenes/shape.scn")
+var loaded_shape = preload("res://scenes/shape.scn")
 
 func _ready():
-	setup("null")
+	setup("res://levels/test.txt")
 	pass
 
 func setup(src_file):
+	var file = File.new()
+	file.open(src_file, File.READ)
 	
+	name = file.get_line()
+	var line = file.get_line()
+	var dimens = line.split(" ")
+	height = int(dimens[0])
+	width = int(dimens[1])
+	
+	var y = 0
+	while(!file.eof_reached()):
+		line = file.get_line()
+		var shapes = line.split(" ")
+		var x = 0
+		for shape in shapes:
+			if (shape != "#"):
+				add_shape(shape, x, y)
+			shape_ref.append(shape)
+			x += 1
+		y += 1
+	file.close()
 	update()
 	
-#	var new_shape = shape.instance()
-#	add_child(new_shape)
-#	new_shape.setup("heart")
-#	new_shape.set_pos(Vector2(64,64))
+
+func add_shape(shape, x, y):
+	var new_shape = loaded_shape.instance()
+	add_child(new_shape)
+	new_shape.setup(shape)
+	new_shape.set_pos(Vector2(x * shape_size, y * shape_size))
 
 #make a super simple grid
 func _draw():
