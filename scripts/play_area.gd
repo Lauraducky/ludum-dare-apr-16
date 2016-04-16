@@ -1,18 +1,24 @@
 
 extends Node2D
 
+const shape_size = 64
+var name
 var width = 3
 var height = 3
 var src_file
 
 var grid = []
-const shape_size = 64
-var name
 
+var holding
+var held_item
+
+#Items to instantiate
+var loaded_shape = preload("res://scenes/shape.scn")
 var grid_square = preload("res://scenes/grid_square.scn")
 
 func _ready():
 	setup("res://levels/test.txt")
+	get_node("/root/input_manager").set_play_area(self)
 
 func setup(src_file):
 	var file = File.new()
@@ -32,7 +38,7 @@ func setup(src_file):
 		var x = 0
 		for shape in shapes:
 			if (shape != "#"):
-				grid[x][y].fill(shape)
+				grid[x][y].get_node("collider").fill(shape)
 			x += 1
 		y += 1
 	file.close()
@@ -64,3 +70,51 @@ func _draw():
 
 func is_solved():
 	return false
+
+func pickup(pos):
+	var coords = get_coords(pos)
+	if(coords == null):
+		return false
+	
+	#They clicked on something! Is there something to pick up?
+	var grid_square = grid[coords.x][coords.y].get_node("collider")
+	if(!grid_square.is_empty()):
+		var type = grid_square.pickup()
+		held_item = loaded_shape.instance()
+		add_child(held_item)
+		held_item.setup(type)
+		held_item.set_pos(pos)
+		holding = grid_square
+		return true
+	return false
+
+func get_coords(pos):
+	var x
+	var y
+	#Find the grid square where the user clicked, if they clicked in it
+	x = int(pos.x / shape_size)
+	y = int(pos.y / shape_size)
+	
+	if (x < 0 || x >= width || y < 0 || y >= height):
+		return null
+	
+	return Vector2(x, y)
+
+func drop(pos):
+	var coords = get_coords(pos)
+	if(coords == null):
+		holding.drop()
+		held_item.queue_free()
+		holding = null
+		return
+	
+	var grid_square = grid[coords.x][coords.y].get_node("collider")
+	if(grid_square.is_empty()):
+		grid_square.fill(held_item.type)
+		held_item.queue_free()
+		holding.empty()
+	else:
+		holding.drop()
+
+func move(pos):
+	held_item.set_pos(pos)
