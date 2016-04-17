@@ -115,6 +115,85 @@ func drop(pos):
 		holding.empty()
 	else:
 		holding.drop()
+	
+	check_match()
 
 func move(pos):
 	held_item.set_pos(pos)
+
+func check_match():
+	for x in range(width):
+		for y in range(height):
+			var current = grid[x][y].get_node("collider")
+			if (!current.is_empty()):
+				var matches = get_adj_matches(x, y, current.get_type())
+				if (matches.size() > 2):
+					for i in matches:
+						i.empty()
+	check_empty()
+
+func check_empty():
+	for col in grid:
+		for cell in col:
+			if (!cell.get_node("collider").is_empty()):
+				return false
+	print("empty")
+	return true
+
+func get_adj_matches(x, y, type):
+	var horizontal = get_hori_matches(x, y, type)
+	var vertical = get_vert_matches(x, y, type)
+	var output = []
+	
+	if(horizontal.size() > 1):
+		for item in horizontal:
+			output.append(item)
+	
+	if (vertical.size() > 1):
+		for item in vertical:
+			output.append(item)
+	
+	output.append(grid[x][y].get_node("collider"))
+	return output
+
+func get_hori_matches(x, y, type):
+	var output = []
+	var current = x
+	
+	while (current > 0):
+		if (grid[current - 1][y].get_node("collider").get_type() == type):
+			current -= 1
+		else:
+			break
+	while (current < width):
+		if (current == x):
+			current += 1
+			continue
+		var square = grid[current][y].get_node("collider")
+		if (square.get_type() == type):
+			output.append(square)
+		else:
+			break
+		current += 1
+	return output
+
+func get_vert_matches(x, y, type):
+	var output = []
+	var current = y
+	
+	while (current > 0):
+		if (grid[x][current - 1].get_node("collider").get_type() == type):
+			current -= 1
+		else:
+			break
+	while (current < height):
+		if (current == y):
+			current += 1
+			continue
+		var square = grid[x][current].get_node("collider")
+		if (square.get_type() == type):
+			output.append(square)
+		else:
+			break
+		current += 1
+	return output

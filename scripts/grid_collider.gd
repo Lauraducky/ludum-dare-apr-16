@@ -32,3 +32,9 @@ func drop():
 
 func refill():
 	contents.show()
+
+func get_type():
+	if(contents != null):
+		return contents.type
+	else: 
+		return null
