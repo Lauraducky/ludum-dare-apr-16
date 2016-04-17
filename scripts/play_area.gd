@@ -16,9 +16,12 @@ var held_item
 var loaded_shape = preload("res://scenes/shape.scn")
 var grid_square = preload("res://scenes/grid_square.scn")
 
+################
+## SETUP CODE ##
+################
 func _ready():
 	setup("res://levels/test.txt")
-	get_node("/root/input_manager").set_play_area(self)
+	get_node("/root/input_manager").set_current_scene(self)
 
 func setup(src_file):
 	var file = File.new()
@@ -68,14 +71,18 @@ func _draw():
 		var x = j * shape_size
 		draw_line(Vector2(x,0), Vector2(x, total_height), Color(255,255,255))
 
-func is_solved():
-	return false
 
-func pickup(pos):
+################
+## INPUT CODE ##
+################
+func mouse_move(pos):
+	if (holding != null):
+		held_item.set_pos(pos)
+
+func mouse_down(pos):
 	var coords = get_coords(pos)
 	if(coords == null):
-		return false
-	
+		return
 	#They clicked on something! Is there something to pick up?
 	var grid_square = grid[coords.x][coords.y].get_node("collider")
 	if(!grid_square.is_empty()):
@@ -85,22 +92,11 @@ func pickup(pos):
 		held_item.setup(type)
 		held_item.set_pos(pos)
 		holding = grid_square
-		return true
-	return false
 
-func get_coords(pos):
-	var x
-	var y
-	#Find the grid square where the user clicked, if they clicked in it
-	x = int(pos.x / shape_size)
-	y = int(pos.y / shape_size)
+func mouse_up(pos):
+	if (holding == null):
+		return
 	
-	if (x < 0 || x >= width || y < 0 || y >= height):
-		return null
-	
-	return Vector2(x, y)
-
-func drop(pos):
 	var coords = get_coords(pos)
 	if(coords == null):
 		holding.refill()
@@ -114,13 +110,26 @@ func drop(pos):
 		held_item.queue_free()
 		holding.empty()
 	else:
-		holding.drop()
-	
+		holding.refill()
+		held_item.queue_free()
+	holding = null
 	check_match()
 
-func move(pos):
-	held_item.set_pos(pos)
+func get_coords(pos):
+	var x
+	var y
+	#Find the grid square where the user clicked, if they clicked in it
+	x = int(pos.x / shape_size)
+	y = int(pos.y / shape_size)
+	
+	if (x < 0 || x >= width || y < 0 || y >= height):
+		return null
+	return Vector2(x, y)
 
+
+###################
+## MATCHING CODE ##
+###################
 func check_match():
 	for x in range(width):
 		for y in range(height):
