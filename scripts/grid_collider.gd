@@ -28,4 +28,7 @@ func pickup():
 
 func drop():
 	if(contents != null):
-		contents.empty()
+		empty()
+
+func refill():
+	contents.show()

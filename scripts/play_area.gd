@@ -103,7 +103,7 @@ func get_coords(pos):
 func drop(pos):
 	var coords = get_coords(pos)
 	if(coords == null):
-		holding.drop()
+		holding.refill()
 		held_item.queue_free()
 		holding = null
 		return
