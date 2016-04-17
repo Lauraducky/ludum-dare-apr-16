@@ -20,14 +20,14 @@ var grid_square = preload("res://scenes/grid_square.scn")
 ## SETUP CODE ##
 ################
 func _ready():
-	setup("res://levels/test.txt")
-	get_node("/root/input_manager").set_current_scene(self)
+	pass
+	#setup("res://levels/test.txt")
+	#get_node("/root/input_manager").set_current_scene(self)
 
 func setup(src_file):
 	var file = File.new()
 	file.open(src_file, File.READ)
 	
-	name = file.get_line()
 	var line = file.get_line()
 	var dimens = line.split(" ")
 	height = int(dimens[0])

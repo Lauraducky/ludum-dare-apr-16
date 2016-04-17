@@ -1,0 +1,6 @@
+5 5
+moon star moon # #
+# # star moon #
+star # # moon #
+# # club club star
+club # # # #

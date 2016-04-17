@@ -1,7 +1,4 @@
-levelName
 height width
-
-#GRID DECLARATIONS#
 
 heart # club
 # heart #
